@@ -52,7 +52,7 @@ const {DataTypes} = require('sequelize');
           },
           sublocationId: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
             primaryKey: false,
             autoIncrement: false,
             comment: null,
@@ -97,8 +97,7 @@ const {DataTypes} = require('sequelize');
             primaryKey: false,
             autoIncrement: false,
             comment: null,
-            field: "isVerified",
-            defaultValue:"Active"
+            field: "isVerified"
           },
           createdAt: {
             type: DataTypes.DATE,
@@ -117,6 +116,22 @@ const {DataTypes} = require('sequelize');
             autoIncrement: false,
             comment: null,
             field: "updated_date"
+          },
+          otp:{
+            type: DataTypes.STRING,
+            allowNull: true,
+            primaryKey: false,
+            autoIncrement: false,
+            comment: null,
+            field: "otp"
+          },
+          code:{
+            type: DataTypes.STRING,
+            allowNull: true,
+            primaryKey: false,
+            autoIncrement: false,
+            comment: null,
+            field: "code"
           }
         };
         const options = {

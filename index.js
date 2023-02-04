@@ -10,6 +10,7 @@ const RoleRoute = require("./src/Routes/RoleRoute");
 const DepartmentRoute = require("./src/Routes/DepartmentRoute");
 const LocationRoute = require("./src/Routes/LocationRoute");
 const SublocationRoute = require("./src/Routes/SublocationRoute");
+const RaiseRequestRoute = require("./src/Routes/RaiseRequestRoute");
 
 
 process.on("uncaughtException", (err) => {
@@ -73,6 +74,7 @@ app.use('/user',UserRoute);
 app.use('/department',DepartmentRoute);
 app.use('/location',LocationRoute);
 app.use('/sublocation',SublocationRoute);
+app.use('/raiserequest',RaiseRequestRoute);
 
 const PORT = process.env.PORT;
 const server = app.listen(PORT, () => {

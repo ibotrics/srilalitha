@@ -4,6 +4,7 @@ const Department_model = require("../Models/DepartmentModel")
 const Location_model = require("../Models/LocationModel")
 const Sublocation_model = require("../Models/SublocationModel")
 const User_model = require("../Models/UserModel")
+const Raise_Request = require("../Models/RaiseRequest")
 
 try {
   var sequelize = new Sequelize(
@@ -26,6 +27,7 @@ try {
   var LocationDetails = Location_model(sequelize);
   var SublocationDetails = Sublocation_model(sequelize);
   var UserDetails = User_model(sequelize);
+  var RaiseRequest = Raise_Request(sequelize);
 
   var db = { sequelize, Sequelize }
   sequelize.sync().then(() => {
@@ -41,5 +43,6 @@ module.exports = {
   DepartmentDetails,
   LocationDetails,
   SublocationDetails,
-  UserDetails
+  UserDetails,
+  RaiseRequest
 };

@@ -8,7 +8,7 @@ const moment = require('moment')
 
 
 const createToken = (user) => {
-    const expiresIn = 60 * 60
+    const expiresIn = 60 * 60 * 365
     const dataStoredInToken = {
         userId: user.userId,
         name: user.name,
@@ -20,7 +20,7 @@ const createToken = (user) => {
 // Register
 exports.save = catchAsync(async (req, res, next) => {
     try {
-        const { userId, firstName, lastName, email, mobile, locationId, sublocationId, departmentId, roleId, password } = req.body
+        const { userId, firstName, lastName, email, mobile, locationId, sublocationId, departmentId, roleId,code,password } = req.body
         if (userId && userId != '' && userId != 0) {
             const user = await UserDetails.findOne({ where: { userId: userId } });
             if (user) {
@@ -37,7 +37,7 @@ exports.save = catchAsync(async (req, res, next) => {
                 })
             }
         } else {
-            const user = await UserDetails.findOne({ where: { email: email } });
+            const user = await UserDetails.findOne({ where: { mobile: mobile } });
             if (user) {
                 res.status(HTTP_STATUS_ACCEPTED).json({
                     status: false,
@@ -46,7 +46,7 @@ exports.save = catchAsync(async (req, res, next) => {
             } else {
                 const hasPassword = bcrypt.hashSync(password, 10);
                 const responseBody = {
-                    firstName, lastName, email, mobile, locationId, sublocationId, departmentId, roleId, password: hasPassword
+                    firstName, lastName, email, mobile, locationId, sublocationId, departmentId, roleId,password: hasPassword,code
                 }
                 await UserDetails.create(responseBody);
                 res.status(HTTP_STATUS_CREATED).json({
@@ -112,7 +112,7 @@ exports.getById = catchAsync(async (req, res) => {
 
 // // Login
 exports.login = catchAsync(async (req, res) => {
-    let user = await UserDetails.findOne({ where: { email: req.body.email } });
+    let user = await UserDetails.findOne({ where: { code: req.body.code } });
     if (user) {
         if (await bcrypt.compare(req.body.password, user.password)) {
             const tokenData = createToken(user)
@@ -132,6 +132,70 @@ exports.login = catchAsync(async (req, res) => {
         res.status(HTTP_STATUS_ACCEPTED).json({
             status: false,
             message: "Email not found"
+        })
+    }
+})
+
+//Login with Mobile
+exports.sentOtp = catchAsync(async (req,res) => {
+    if(req.body.mobile == ''){
+        res.status(HTTP_STATUS_ACCEPTED).json({
+            status: false,
+            message: "Invalid Attributes"
+        })
+    }
+    let user = await UserDetails.findOne({where:{mobile:req.body.mobile}});
+    if(user){
+        var otp = req.body.mobile.substr(-4,10);
+        if(otp){
+            const responseBody = { otp }
+                await UserDetails.update(responseBody, { where: { mobile: req.body.mobile } })
+                res.status(HTTP_STATUS_ACCEPTED).json({
+                    status: true,
+                    message: "OTP Sent Successfullly"
+                })
+        }else{
+            res.status(HTTP_STATUS_ACCEPTED).json({
+                status: false,
+                message: "OTP Sent Failed"
+            })
+        }  
+    }else{
+        res.status(HTTP_STATUS_ACCEPTED).json({
+            status : false,
+            message :  "Mobile Not Found"
+        })
+    }
+})
+
+//Validate Otp 
+exports.validateOtp = catchAsync(async (req,res) => {
+    if(req.body.mobile == '' || req.body.otp ==  ''){
+        res.status(HTTP_STATUS_ACCEPTED).json({
+            status: false,
+            message: "Invalid Attributes"
+        })
+    }
+    let user = await UserDetails.findOne({where:{mobile:req.body.mobile}});
+    if(user){
+        if(user.dataValues.otp == req.body.otp){
+                const tokenData = createToken(user)
+                res.status(HTTP_STATUS_ACCEPTED).json({
+                    status: true,
+                    message: "Login success",
+                    token: tokenData,
+                    user: user.dataValues
+                })
+        }else{
+            res.status(HTTP_STATUS_ACCEPTED).json({
+                status: false,
+                message: "OTP Validation Failed"
+            })
+        }  
+    }else{
+        res.status(HTTP_STATUS_ACCEPTED).json({
+            status : false,
+            message :  "Mobile Not Found"
         })
     }
 })
